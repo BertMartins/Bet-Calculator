@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Apostas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        'primary-dark': '#4A49B8',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .input-field:focus {
+            outline: none;
+            border-color: #5D5CDE;
+            box-shadow: 0 0 0 3px rgba(93, 92, 222, 0.1);
+        }
+
+        .dark .input-field:focus {
+            box-shadow: 0 0 0 3px rgba(93, 92, 222, 0.2);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #5D5CDE 0%, #7B7AE8 100%);
+        }
+
+        .dark .bg-card {
+            background-color: #282828;
+        }
+
+        .bg-card {
+            background-color: #FFFFFF;
+        }
+    </style>
+</head>
+
+<body class="bg-white dark:bg-[#181818] min-h-screen transition-colors duration-200">
+    <div class="container mx-auto px-4 py-8 max-w-2xl">
+        <!-- Header -->
+        <header class="text-center mb-8 fade-in">
+            <h1 class="text-4xl font-bold text-gray-800 dark:text-white mb-2">
+                💰 Calculadora Bet
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400">
+                Distribua suas apostas e garanta lucro em qualquer resultado
+            </p>
+        </header>
+
+        <!-- Main Card -->
+        <div class="bg-card dark:bg-card rounded-2xl shadow-xl p-6 md:p-8 mb-6 fade-in">
+            <form id="betForm" class="space-y-6">
+                <!-- Valor Total -->
+                <div>
+                    <label for="valorTotal" class="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Valor Total (R$)
+                    </label>
+                    <div class="relative">
+                        <span
+                            class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 text-base">
+                            R$
+                        </span>
+                        <input type="number" id="valorTotal" step="0.01" min="0.01" placeholder="500.00"
+                            class="input-field w-full pl-12 pr-4 py-3 text-base border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200"
+                            required>
+                    </div>
+                    <!-- Info Helper - Multiplicador para R$ 20 -->
+                    <div id="multiplicadorHelper"
+                        class="hidden mt-3 p-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded-r-lg fade-in">
+                        <div class="flex items-start">
+                            <span class="text-xl mr-3">💡</span>
+                            <div>
+                                <p class="font-semibold text-base text-blue-800 dark:text-blue-300 mb-1">
+                                    Dica de Multiplicador
+                                </p>
+                                <p class="text-base text-blue-700 dark:text-blue-400" id="multiplicadorHelperText"></p>
+                                <div class="mt-2 text-sm text-blue-600 dark:text-blue-400">
+                                    <p class="font-semibold mb-1">Exemplos de odds que funcionam:</p>
+                                    <ul id="oddsExamples" class="list-disc list-inside space-y-1"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Odds -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Odd Time A -->
+                    <div>
+                        <label for="oddA" class="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            Odd Time A
+                        </label>
+                        <input type="number" id="oddA" step="0.01" min="1.01" placeholder="1.50"
+                            class="input-field w-full px-4 py-3 text-base border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200"
+                            required>
+                    </div>
+
+                    <!-- Odd Time B -->
+                    <div>
+                        <label for="oddB" class="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            Odd Time B
+                        </label>
+                        <input type="number" id="oddB" step="0.01" min="1.01" placeholder="3.00"
+                            class="input-field w-full px-4 py-3 text-base border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200"
+                            required>
+                    </div>
+                </div>
+
+                <!-- Lucro Mínimo Desejado (Opcional) -->
+                <div>
+                    <label for="lucroMinimo"
+                        class="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Lucro Mínimo Desejado (R$)
+                        <span class="text-sm font-normal text-gray-500 dark:text-gray-400">- Opcional</span>
+                    </label>
+                    <div class="relative">
+                        <span
+                            class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 text-base">
+                            R$
+                        </span>
+                        <input type="number" id="lucroMinimo" step="0.01" min="0" value="0" placeholder="0.00"
+                            class="input-field w-full pl-12 pr-4 py-3 text-base border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200">
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                        Deixe em 0 para break-even (sem prejuízo)
+                    </p>
+                </div>
+
+                <!-- Botão Calcular -->
+                <button type="submit"
+                    class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-4 px-6 rounded-lg text-base transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]">
+                    Calcular Distribuição
+                </button>
+            </form>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage"
+            class="hidden bg-red-100 dark:bg-red-900/30 border-2 border-red-400 dark:border-red-600 text-red-700 dark:text-red-400 px-6 py-4 rounded-lg mb-6 fade-in">
+            <div class="flex items-start">
+                <span class="text-xl mr-3">⚠️</span>
+                <div>
+                    <p class="font-semibold text-base mb-1">Erro de Validação</p>
+                    <p id="errorText" class="text-base"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warning Message -->
+        <div id="warningMessage"
+            class="hidden bg-yellow-100 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-600 text-yellow-800 dark:text-yellow-400 px-6 py-4 rounded-lg mb-6 fade-in">
+            <div class="flex items-start">
+                <span class="text-xl mr-3">⚠️</span>
+                <div>
+                    <p class="font-semibold text-base mb-1">Atenção</p>
+                    <p id="warningText" class="text-base"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="hidden">
+            <!-- Result Header -->
+            <div class="result-card text-white rounded-2xl shadow-xl p-6 md:p-8 mb-6 fade-in">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <span class="text-3xl mr-3">✅</span>
+                    Distribuição Calculada
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4">
+                        <p class="text-sm font-semibold mb-1 opacity-90">Aposte no Time A</p>
+                        <p class="text-3xl font-bold" id="resultValorA">R$ 0,00</p>
+                        <p class="text-sm opacity-90 mt-1" id="resultPercentA">0%</p>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4">
+                        <p class="text-sm font-semibold mb-1 opacity-90">Aposte no Time B</p>
+                        <p class="text-3xl font-bold" id="resultValorB">R$ 0,00</p>
+                        <p class="text-sm opacity-90 mt-1" id="resultPercentB">0%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lucros -->
+            <div class="bg-card dark:bg-card rounded-2xl shadow-xl p-6 md:p-8 fade-in">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">
+                    💵 Lucros Estimados
+                </h3>
+                <div class="space-y-4">
+                    <div class="border-l-4 border-green-500 bg-green-50 dark:bg-green-900/20 p-4 rounded-r-lg">
+                        <p class="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                            Se Time A vencer
+                        </p>
+                        <p class="text-2xl font-bold text-green-600 dark:text-green-400" id="resultLucroA">
+                            R$ 0,00
+                        </p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1" id="resultRetornoA">
+                            Retorno total: R$ 0,00
+                        </p>
+                    </div>
+                    <div class="border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-r-lg">
+                        <p class="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                            Se Time B vencer
+                        </p>
+                        <p class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="resultLucroB">
+                            R$ 0,00
+                        </p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1" id="resultRetornoB">
+                            Retorno total: R$ 0,00
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Info adicional -->
+                <div class="mt-6 pt-6 border-t-2 border-gray-200 dark:border-gray-700">
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Investimento Total</p>
+                            <p class="text-lg font-bold text-gray-800 dark:text-white" id="resultInvestimento">
+                                R$ 0,00
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Lucro Médio</p>
+                            <p class="text-lg font-bold text-gray-800 dark:text-white" id="resultLucroMedio">
+                                R$ 0,00
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+            <p>Sure Bet Calculator - Aposte com inteligência 🎯</p>
+        </footer>
+    </div>
+
+    <script src="scirpt.js"></script>
+</body>
+
+</html>
